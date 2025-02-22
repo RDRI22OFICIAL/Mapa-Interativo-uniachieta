@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa Interativo - UniAnchieta</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <style>
+        body { background: radial-gradient(circle, #1e3c72, #2a5298, #ffffff); color: white; font-family: Arial, sans-serif; text-align: center; }
+        #map { height: 500px; margin: 10px auto; width: 70%; border: 2px solid white; }
+        select, button { margin: 10px; padding: 10px; border: none; border-radius: 5px; }
+        button { background-color: #0056b3; color: white; cursor: pointer; }
+        button:hover { background-color: #003f7f; }
+        @media (max-width: 768px) { #map { width: 90%; height: 400px; } }
+        .hidden { display: none; }
+        table { width: 90%; margin: 20px auto; border-collapse: collapse; background: white; color: black; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: center; }
+        th { background-color: #0056b3; color: white; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h2>Mapa Interativo - UniAnchieta</h2>
+    <div id="map"></div>
+
+    <label for="destino">Escolha um destino:</label>
+    <select id="destino">
+        <option value="-23.214361944061388,-46.89156384709646">Prédio 1</option>
+        <option value="-23.21286811652687,-46.89295256165431">Prédio 2</option>
+        <option value="-23.213937955105724,-46.892882857834785">Prédio 3</option>
+        <option value="-23.214599975061883,-46.8934301920265">Prédio 4</option>
+        <option value="-23.215347959684838,-46.89117200669036">Anfiteatro</option>
+        <option value="-23.213484384035493,-46.89236257392991">Área Food Truck</option>
+        <option value="-23.21397246588498,-46.89193898918061">Cantina</option>
+    </select>
+    <button onclick="mostrarDestino()">Ir</button>
+
+    <h3 onclick="toggleTable()" style="cursor: pointer;">Cronograma de Aulas </h3>
+    <table id="cronograma" class="hidden">
+        <tr>
+            <th>Curso</th>
+            <th>Disciplina</th>
+            <th>Professor</th>
+            <th>Horário</th>
+            <th>Dia</th>
+        </tr>
+        <tr>
+            <td>Engenharia</td>
+            <td>Cálculo</td>
+            <td>Prof. João Silva</td>
+            <td>08:00 - 12:00</td>
+            <td>Seg-Sex</td>
+        </tr>
+        <tr>
+            <td>Farmácia</td>
+            <td>Bioquímica</td>
+            <td>Prof. Carla Mendes</td>
+            <td>08:30 - 12:30</td>
+            <td>Seg-Sáb</td>
+        </tr>
+        <tr>
+            <td>Física</td>
+            <td>Mecânica Clássica</td>
+            <td>Prof. Ricardo Oliveira</td>
+            <td>07:30 - 11:30</td>
+            <td>Seg-Sex</td>
+        </tr>
+        <tr>
+            <td>Biomedicina</td>
+            <td>Microbiologia</td>
+            <td>Prof. Fernanda Almeida</td>
+            <td>08:00 - 12:00</td>
+            <td>Seg-Sáb</td>
+        </tr>
+    </table>
+
+    <div id="logo-container">
+        <img src="https://www2.intranet.anchieta.br/sistema_anchieta/EAD/Tickets2/images/Unianchieta-01.png" alt="Logo UniAnchieta" width="300">
+    </div>
+
+    <script>
+        var map = L.map('map').setView([-23.214327433382742, -46.892293061456655], 17);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        var locais = [
+            { nome: "Prédio 1", coords: [-23.214361944061388, -46.89156384709646] },
+            { nome: "Prédio 2", coords: [-23.21286811652687, -46.89295256165431] },
+            { nome: "Prédio 3", coords: [-23.213937955105724, -46.892882857834785] },
+            { nome: "Prédio 4", coords: [-23.214599975061883, -46.8934301920265] },
+            { nome: "Anfiteatro", coords: [-23.215347959684838, -46.89117200669036] },
+            { nome: "Área Food Truck", coords: [-23.213484384035493, -46.89236257392991] },
+            { nome: "Cantina", coords: [-23.21397246588498, -46.89193898918061] }
+        ];
+
+        locais.forEach(local => {
+            L.marker(local.coords).addTo(map).bindPopup(`<b>${local.nome}</b>`);
+        });
+
+        function mostrarDestino() {
+            var destino = document.getElementById('destino').value.split(',');
+            var lat = parseFloat(destino[0]);
+            var lng = parseFloat(destino[1]);
+
+            L.marker([lat, lng]).addTo(map).bindPopup(`Destino: ${document.getElementById('destino').selectedOptions[0].text}`).openPopup();
+            map.setView([lat, lng], 18);
+        }
+
+        function toggleTable() {
+            var table = document.getElementById('cronograma');
+            table.classList.toggle('hidden');
+        }
+
+        function generateQRCodeForMap() {
+            var qrContainer = document.getElementById('qrcode-map');
+            qrContainer.innerHTML = "";
+            var qr = new QRious({
+                element: document.createElement("canvas"),
+                value: window.location.href,
+                size: 200
+            });
+            qrContainer.appendChild(qr.element);
+        }
+    </script>
+</body>
+</html>
